@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ENSO Explorer API",
-    "description": "API en lecture seule exposant l'indice NOAA ONI (Oceanic Niño Index, ERSST v6) pour explorer les épisodes El Niño / La Niña. Source : NOAA CPC.",
+    "description": "API en lecture seule exposant l'indice NOAA RONI (Relative Oceanic Niño Index, ERSST v6) pour explorer les épisodes El Niño / La Niña. Source : NOAA CPC.",
     "version": "1.0.0"
   },
   "paths": {
@@ -73,7 +73,7 @@
               "type": "string",
               "pattern": "^[A-Za-z0-9]{2,10}$",
               "examples": [
-                "ONI"
+                "RONI"
               ],
               "title": "Code"
             }
@@ -166,7 +166,7 @@
               "type": "string",
               "pattern": "^[A-Za-z0-9]{2,10}$",
               "examples": [
-                "ONI"
+                "RONI"
               ],
               "title": "Code"
             }
@@ -248,7 +248,7 @@
               "type": "string",
               "pattern": "^[A-Za-z0-9]{2,10}$",
               "examples": [
-                "ONI"
+                "RONI"
               ],
               "title": "Code"
             }
@@ -706,9 +706,9 @@
           "anomaly": {
             "type": "number",
             "title": "Anomaly",
-            "description": "Anomalie ONI en °C",
+            "description": "Anomalie RONI en °C",
             "examples": [
-              2.37
+              2.28
             ]
           },
           "mean_sst": {
@@ -721,9 +721,9 @@
               }
             ],
             "title": "Mean Sst",
-            "description": "SST moyenne Niño 3.4 en °C",
+            "description": "SST moyenne Niño 3.4 en °C (absente pour le RONI)",
             "examples": [
-              28.96
+              null
             ]
           }
         },

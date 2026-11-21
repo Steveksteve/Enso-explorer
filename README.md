@@ -1,7 +1,7 @@
-# ENSO Explorer — El Niño / La Niña à partir de l'indice NOAA ONI
+# ENSO Explorer — El Niño / La Niña à partir de l'indice NOAA RONI
 
-Application web pour explorer une série scientifique réelle : l'**Oceanic Niño Index (ONI)** publié
-par NOAA / Climate Prediction Center. Elle importe la série dans PostgreSQL, l'expose par une API
+Application web pour explorer une série scientifique réelle : le **Relative Oceanic Niño Index (RONI)**
+publié par NOAA / Climate Prediction Center. Elle importe la série dans PostgreSQL, l'expose par une API
 FastAPI documentée, l'affiche sous forme de courbe interactive filtrable et compare deux épisodes
 historiques avec une interprétation prudente.
 
@@ -16,12 +16,15 @@ Projet de rattrapage individuel — Katia Sakri.
 
 ## Données
 
-* Indice : **ONI** (pas le RONI). Fichier `data/raw/oni.ascii.txt`, téléchargé le **2026-11-16** depuis
-  <https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt> (Last-Modified NOAA : 03/11/2026).
-* Version : ONI calculé sur **ERSST v6** (vérifié valeur par valeur contre la table CPC v6).
-* 921 saisons glissantes de 3 mois, DJF 1950 → ASO 2026, unité °C.
-* SHA-256 : `118c563331335c8649cdc2677e6be7ae89d1259d901345fcddbc2857af280f7f`.
-* Détails, précautions et différence ONI/RONI : [`data/raw/SOURCE.md`](data/raw/SOURCE.md).
+* Indice : **RONI** (pas l'ONI). Fichier `data/raw/RONI.ascii.txt`, téléchargé le **2026-11-21** depuis
+  <https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt> (Last-Modified NOAA : 03/11/2026).
+* Définition : anomalie de SST de Niño 3.4 moins l'anomalie moyenne des tropiques (20°N–20°S), ajustée
+  à la variance de Niño 3.4 ; ERSST **v6**, période de référence 1991–2020 (vérifié valeur par valeur
+  contre la table CPC).
+* Indice utilisé par NOAA pour le suivi officiel de l'ENSO depuis 2026 (NWS PNS 26-05).
+* 921 saisons glissantes de 3 mois, DJF 1950 → ASO 2026, unité °C. Pas de SST moyenne dans ce fichier.
+* SHA-256 : `1297887f581b6190e459cbbf8bdec9a703ff65c1a229e2de4dd94285254f35c8`.
+* Détails, précautions et différence RONI/ONI : [`data/raw/SOURCE.md`](data/raw/SOURCE.md).
 
 ## Architecture
 
@@ -56,7 +59,7 @@ python -m venv .venv && source .venv/bin/activate      # Windows : .venv\Scripts
 pip install -r requirements-dev.txt
 export DATABASE_URL=postgresql+psycopg://enso:enso_dev@localhost:5432/enso
 alembic upgrade head                                   # crée le schéma
-python -m etl.load --file ../data/raw/oni.ascii.txt --extracted-at 2026-11-16 \
+python -m etl.load --file ../data/raw/RONI.ascii.txt --extracted-at 2026-11-21 \
        --last-modified "Tue, 03 Nov 2026 19:31:48 GMT"   # importe les 921 observations
 uvicorn app.main:app --reload --port 8000              # API : http://localhost:8000/api/docs
 
@@ -96,9 +99,9 @@ Aucun secret n'est versionné : `.env` est dans `.gitignore`, seul `.env.example
 |---|---|---|
 | GET | `/api/v1/health` | État API + base |
 | GET | `/api/v1/indices` | Indices disponibles et leur source |
-| GET | `/api/v1/indices/ONI/observations?start=1997-01&end=1998-12` | Observations filtrées (mois central, AAAA-MM) |
-| GET | `/api/v1/indices/ONI/episodes?phase=el_nino` | Épisodes détectés |
-| GET | `/api/v1/indices/ONI/episodes/compare?a=EN-1997-05&b=EN-2014-10` | Comparaison + interprétation |
+| GET | `/api/v1/indices/RONI/observations?start=1997-01&end=1998-12` | Observations filtrées (mois central, AAAA-MM) |
+| GET | `/api/v1/indices/RONI/episodes?phase=el_nino` | Épisodes détectés |
+| GET | `/api/v1/indices/RONI/episodes/compare?a=EN-1997-05&b=EN-2015-03` | Comparaison + interprétation |
 | GET | `/api/v1/imports` | Historique des imports (traçabilité) |
 
 Codes : `200`, `404` (indice / épisode inconnu), `422` (format invalide, début > fin, épisodes identiques),
@@ -107,7 +110,7 @@ Codes : `200`, `404` (indice / épisode inconnu), `422` (format invalide, début
 ## Tests
 
 ```bash
-cd backend && pytest                       # 25 tests (SQLite en mémoire par défaut)
+cd backend && pytest                       # 27 tests (SQLite en mémoire par défaut)
 TEST_DATABASE_URL=postgresql+psycopg://enso:enso_dev@localhost:5432/enso_test pytest   # sur PostgreSQL
 cd frontend && npm test                    # 4 tests Vitest
 ```
@@ -118,19 +121,22 @@ cd frontend && npm test                    # 4 tests Vitest
 | API : route filtrée par période + entrée invalide | `backend/tests/test_api.py` |
 | Frontend : un changement de période actualise la courbe | `frontend/src/components/SeriesExplorer.test.tsx` |
 
-Résultats réellement exécutés le 16/11/2026 : `docs/preuves/pytest.txt`, `docs/preuves/vitest.txt`,
+Résultats réellement exécutés le 21/11/2026 : `docs/preuves/pytest.txt`, `docs/preuves/vitest.txt`,
 `docs/preuves/lint-backend.txt`. Qualité : `ruff` (Python), `oxlint` + `tsc` strict (TypeScript),
 pipeline CI GitHub Actions (`.github/workflows/ci.yml`).
 
 ## Méthode scientifique et limites
 
-* Épisode = au moins 5 saisons glissantes consécutives avec ONI ≥ +0,5 °C (El Niño) ou ≤ −0,5 °C
+* Épisode = au moins 5 saisons glissantes consécutives avec RONI ≥ +0,5 °C (El Niño) ou ≤ −0,5 °C
   (La Niña), règle NOAA CPC. Le seuil est appliqué aux valeurs à 2 décimales (NOAA colore sa table
   sur des valeurs arrondies à 0,1 °C : les bornes peuvent différer d'une saison).
 * Classe d'intensité selon le pic (faible / modéré / fort / très fort, paliers 0,5 – 1,0 – 1,5 – 2,0 °C) :
   convention de lecture, **pas** une classification officielle NOAA. « Super El Niño » n'est pas utilisé.
-* L'épisode 2026 est **en cours** dans les données, et l'épisode La Niña 1950 commence avec la série :
-  leurs durées sont des bornes minimales (signalées dans l'interface).
+* L'épisode La Niña 1950 commence avec la série : sa durée est une borne minimale (signalé dans
+  l'interface). Le réchauffement de 2026 ne compte encore que 4 saisons ≥ +0,5 °C (MJJ → ASO 2026) :
+  ce n'est pas encore un épisode au sens de la règle des 5 saisons.
+* Le RONI retire le réchauffement moyen des tropiques : avec lui, El Niño 1997-98 (pic +2,28 °C)
+  dépasse légèrement 2015-16 (+2,25 °C), alors que l'ONI classait 2015-16 devant.
 * Aucune prévision climatique.
 
 ## Utilisation de l'IA
@@ -148,4 +154,4 @@ et de modifier le code.
 ## Licence des données
 
 Les données NOAA sont des données publiques du gouvernement américain. Source à citer :
-NOAA Climate Prediction Center, *Oceanic Niño Index (ONI)*.
+NOAA Climate Prediction Center, *Relative Oceanic Niño Index (RONI)*.
