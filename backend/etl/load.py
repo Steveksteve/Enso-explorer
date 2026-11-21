@@ -1,7 +1,7 @@
-"""Chargement de l'ONI dans PostgreSQL, avec traçabilité (table import_batch).
+"""Chargement du RONI dans PostgreSQL, avec traçabilité (table import_batch).
 
 Usage :
-    python -m etl.load --file ../data/raw/oni.ascii.txt --extracted-at 2026-11-16 \
+    python -m etl.load --file ../data/raw/RONI.ascii.txt --extracted-at 2026-11-21 \
         --last-modified "Tue, 03 Nov 2026 19:31:48 GMT"
     python -m etl.load --download          # télécharge la version courante chez NOAA
 
@@ -35,25 +35,26 @@ from etl.transform import transform
 
 log = logging.getLogger("etl")
 
-ONI_URL = "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt"
+RONI_URL = "https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt"
 
 SOURCE_META = {
-    "code": "NOAA_CPC_ONI",
-    "name": "Oceanic Niño Index (ONI)",
+    "code": "NOAA_CPC_RONI",
+    "name": "Relative Oceanic Niño Index (RONI)",
     "provider": "NOAA / NWS / Climate Prediction Center",
-    "url": ONI_URL,
-    "documentation_url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/",
-    "version": "ERSST v6, moyenne glissante 3 mois, périodes de référence de 30 ans",
+    "url": RONI_URL,
+    "documentation_url": "https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/",
+    "version": "ERSST v6, moyenne glissante 3 mois, période de référence 1991–2020",
 }
 INDEX_META = {
-    "code": "ONI",
-    "name": "Oceanic Niño Index",
-    "region": "Niño 3.4 (5°N–5°S, 120°–170°W)",
+    "code": "RONI",
+    "name": "Relative Oceanic Niño Index",
+    "region": "Niño 3.4 (5°N–5°S, 120°–170°W), relatif aux tropiques (20°N–20°S)",
     "unit": "°C",
     "description": (
         "Moyenne glissante sur 3 mois des anomalies de température de surface de la mer "
-        "dans la région Niño 3.4. Seuils NOAA : ≥ +0,5 °C (El Niño) ou ≤ −0,5 °C (La Niña) "
-        "pendant au moins 5 saisons glissantes consécutives."
+        "en Niño 3.4, moins l'anomalie moyenne de la bande tropicale 20°N–20°S, ajustée pour "
+        "avoir la même variance que l'indice Niño 3.4. Seuils NOAA : ≥ +0,5 °C (El Niño) ou "
+        "≤ −0,5 °C (La Niña) pendant au moins 5 saisons glissantes consécutives."
     ),
 }
 
@@ -206,7 +207,7 @@ def record_failure(session: Session, file_name: str, digest: str, extracted_at: 
     session.commit()
 
 
-def download(url: str = ONI_URL, timeout: int = 30) -> tuple[bytes, str | None]:
+def download(url: str = RONI_URL, timeout: int = 30) -> tuple[bytes, str | None]:
     if not url.startswith("https://"):
         raise ValueError("Seules les URL https:// sont acceptées")
     request = urllib.request.Request(  # noqa: S310 (schéma https vérifié ci-dessus)
@@ -217,9 +218,9 @@ def download(url: str = ONI_URL, timeout: int = 30) -> tuple[bytes, str | None]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Import de l'indice NOAA ONI dans PostgreSQL")
+    parser = argparse.ArgumentParser(description="Import de l'indice NOAA RONI dans PostgreSQL")
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--file", type=Path, help="Fichier oni.ascii.txt local")
+    group.add_argument("--file", type=Path, help="Fichier RONI.ascii.txt local")
     group.add_argument("--download", action="store_true", help="Télécharger depuis NOAA CPC")
     parser.add_argument(
         "--extracted-at",
@@ -234,7 +235,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.download:
         content, last_modified = download()
-        file_name = "oni.ascii.txt"
+        file_name = "RONI.ascii.txt"
     else:
         content, last_modified = args.file.read_bytes(), args.last_modified
         file_name = args.file.name

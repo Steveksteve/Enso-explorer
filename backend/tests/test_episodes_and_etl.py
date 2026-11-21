@@ -36,29 +36,29 @@ def test_episode_reaching_end_of_data_is_flagged_ongoing():
     assert episodes[0].phase == "la_nina"
 
 
-def test_etl_is_idempotent_and_tracks_revisions(session_factory, oni_text):
+def test_etl_is_idempotent_and_tracks_revisions(session_factory, roni_text):
     with session_factory() as session:
         before = session.scalar(select(func.count()).select_from(Observation))
         # 1) même fichier : ignoré
         same = load_bytes(
-            session, oni_text.encode(), file_name="oni.ascii.txt", extracted_at=date(2026, 11, 16)
+            session, roni_text.encode(), file_name="RONI.ascii.txt", extracted_at=date(2026, 11, 16)
         )
         assert same.status == "skipped"
         # 2) fichier révisé (une valeur modifiée) : 1 mise à jour, rien d'inséré
-        revised = oni_text.replace("  ASO 2026  29.23   2.46", "  ASO 2026  29.25   2.48")
+        revised = roni_text.replace("ASO  2026  1.97", "ASO  2026  1.99")
         result = load_bytes(
-            session, revised.encode(), file_name="oni.ascii.txt", extracted_at=date(2026, 11, 17)
+            session, revised.encode(), file_name="RONI.ascii.txt", extracted_at=date(2026, 11, 17)
         )
         assert (result.status, result.inserted, result.updated) == ("success", 0, 1)
         assert session.scalar(select(func.count()).select_from(Observation)) == before
         obs = session.scalar(select(Observation).where(Observation.period == date(2026, 9, 1)))
-        assert float(obs.anomaly) == 2.48
+        assert float(obs.anomaly) == 1.99
         assert obs.import_id == result.import_id  # traçabilité de la révision
         # remise en état pour les autres tests
         load_bytes(
             session,
-            oni_text.encode(),
-            file_name="oni.ascii.txt",
+            roni_text.encode(),
+            file_name="RONI.ascii.txt",
             extracted_at=date(2026, 11, 16),
             force=True,
         )

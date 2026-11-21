@@ -19,12 +19,12 @@ from app.db import Base, get_session
 from app.main import app
 from etl.load import load_bytes
 
-DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "raw" / "oni.ascii.txt"
+DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "raw" / "RONI.ascii.txt"
 TEST_DB_URL = os.environ.get("TEST_DATABASE_URL", "sqlite+pysqlite:///:memory:")
 
 
 @pytest.fixture(scope="session")
-def oni_text() -> str:
+def roni_text() -> str:
     return DATA_FILE.read_text(encoding="utf-8")
 
 

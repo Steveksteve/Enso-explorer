@@ -4,13 +4,14 @@ from datetime import date
 
 import pytest
 
-from etl.transform import OniFormatError, parse_oni_text, transform
+from etl.transform import NoaaFormatError, parse_noaa_text, transform
 
+# Les cas synthétiques utilisent le format ONI à 4 colonnes : il reste accepté par l'ETL.
 HEADER = " SEAS  YR   TOTAL   ANOM\n"
 
 
-def test_real_noaa_file_is_parsed_completely(oni_text):
-    frame, report = transform(oni_text)
+def test_real_noaa_file_is_parsed_completely(roni_text):
+    frame, report = transform(roni_text)
     assert report.rows_read == 921
     assert report.rows_rejected == 0
     assert report.duplicates == 0
@@ -20,12 +21,12 @@ def test_real_noaa_file_is_parsed_completely(oni_text):
         "DJF",
         1950,
         date(1950, 1, 1),
-        -1.32,
+        -1.19,
     )
     assert (last.season, last.year, last.period) == ("ASO", 2026, date(2026, 9, 1))
-    # Valeur de référence du pic El Niño 1997-98 (NDJ 1997 = mois central décembre 1997)
+    # Valeur de référence du pic El Niño 1997-98 (RONI) (NDJ 1997 = mois central décembre 1997)
     ndj_1997 = frame.loc[frame.period == date(1997, 12, 1)].iloc[0]
-    assert ndj_1997.anomaly == pytest.approx(2.37)
+    assert ndj_1997.anomaly == pytest.approx(2.28)
 
 
 def test_duplicates_are_removed_and_last_value_kept():
@@ -73,10 +74,10 @@ def test_gap_in_series_is_reported():
 
 
 def test_unexpected_header_is_refused():
-    with pytest.raises(OniFormatError):
-        parse_oni_text("Year Month Value\n1998 1 2.2\n")
-    with pytest.raises(OniFormatError):
-        parse_oni_text("   \n")
+    with pytest.raises(NoaaFormatError):
+        parse_noaa_text("Year Month Value\n1998 1 2.2\n")
+    with pytest.raises(NoaaFormatError):
+        parse_noaa_text("   \n")
 
 
 def test_lowercase_season_is_accepted():

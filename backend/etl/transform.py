@@ -1,8 +1,8 @@
-"""Transformation pure (sans base de données) du fichier NOAA `oni.ascii.txt`.
+"""Transformation pure (sans base de données) du fichier NOAA `RONI.ascii.txt`.
 
-Entrée : texte brut au format NOAA CPC
-    " SEAS  YR   TOTAL   ANOM"
-    "  DJF 1950  25.01  -1.32"
+Entrée : texte brut au format NOAA CPC, RONI (3 colonnes) ou ONI (4 colonnes) :
+    "SEAS   YR  ANOM"                 "SEAS  YR   TOTAL   ANOM"
+    "DJF  1950 -1.19"                 "DJF 1950  25.01  -1.32"
 Sortie : DataFrame propre (season, year, period, mean_sst, anomaly) + rapport de contrôle.
 
 Ces fonctions ne touchent ni au réseau ni à la base : elles sont testables isolément.
@@ -25,11 +25,13 @@ MIN_YEAR, MAX_YEAR = 1850, 2100
 MAX_ABS_ANOMALY = 10.0  # garde-fou physique : une anomalie ONI réelle reste < 3 °C
 MISSING_SENTINELS = (-99.9, -99.99, -999.0)  # valeurs "manquantes" usuelles des fichiers NOAA
 
-EXPECTED_COLUMNS = ["SEAS", "YR", "TOTAL", "ANOM"]
+# Formats NOAA acceptés : RONI (sans SST moyenne) et ONI (avec SST moyenne "TOTAL")
+RONI_COLUMNS = ["SEAS", "YR", "ANOM"]
+ONI_COLUMNS = ["SEAS", "YR", "TOTAL", "ANOM"]
 
 
-class OniFormatError(ValueError):
-    """Le fichier ne ressemble pas au format ONI attendu (mauvais fichier ou format modifié)."""
+class NoaaFormatError(ValueError):
+    """Le fichier ne ressemble pas au format NOAA attendu (mauvais fichier ou format modifié)."""
 
 
 @dataclass
@@ -50,14 +52,17 @@ class TransformReport:
         )
 
 
-def parse_oni_text(text: str) -> pd.DataFrame:
+def parse_noaa_text(text: str) -> pd.DataFrame:
     """Lit le texte NOAA en DataFrame brut (toutes les colonnes en texte, rien n'est corrigé)."""
     if not text or not text.strip():
-        raise OniFormatError("Fichier vide")
+        raise NoaaFormatError("Fichier vide")
     frame = pd.read_csv(io.StringIO(text), sep=r"\s+", dtype=str, engine="python")
-    if list(frame.columns) != EXPECTED_COLUMNS:
-        raise OniFormatError(
-            f"En-tête inattendu {list(frame.columns)} ; attendu {EXPECTED_COLUMNS}"
+    columns = list(frame.columns)
+    if columns == RONI_COLUMNS:
+        frame.insert(2, "TOTAL", None)  # le RONI ne publie pas de SST moyenne
+    elif columns != ONI_COLUMNS:
+        raise NoaaFormatError(
+            f"En-tête inattendu {columns} ; attendu {RONI_COLUMNS} (RONI) ou {ONI_COLUMNS} (ONI)"
         )
     return frame.rename(
         columns={"SEAS": "season", "YR": "year", "TOTAL": "mean_sst", "ANOM": "anomaly"}
@@ -143,4 +148,4 @@ def clean_observations(raw: pd.DataFrame) -> tuple[pd.DataFrame, TransformReport
 
 def transform(text: str) -> tuple[pd.DataFrame, TransformReport]:
     """Raccourci : parse + clean."""
-    return clean_observations(parse_oni_text(text))
+    return clean_observations(parse_noaa_text(text))
