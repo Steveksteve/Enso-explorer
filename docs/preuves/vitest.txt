@@ -1,0 +1,77 @@
+# vitest — 2026-11-21T21:03:05+01:00
+
+ RUN  v5.1.0 ./frontend
+
+stderr | src/components/SeriesExplorer.test.tsx > SeriesExplorer > actualise la courbe et les valeurs quand la période change
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+
+stderr | src/components/SeriesExplorer.test.tsx > SeriesExplorer > actualise la courbe et les valeurs quand la période change
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+
+stderr | src/components/SeriesExplorer.test.tsx > SeriesExplorer > actualise la courbe et les valeurs quand la période change
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+
+ ✓ src/components/SeriesExplorer.test.tsx > SeriesExplorer > actualise la courbe et les valeurs quand la période change 488ms
+stderr | src/components/SeriesExplorer.test.tsx > SeriesExplorer > applique un préréglage de période au clic
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+
+stderr | src/components/SeriesExplorer.test.tsx > SeriesExplorer > applique un préréglage de période au clic
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+
+stderr | src/components/SeriesExplorer.test.tsx > SeriesExplorer > applique un préréglage de période au clic
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+
+ ✓ src/components/SeriesExplorer.test.tsx > SeriesExplorer > applique un préréglage de période au clic 257ms
+stderr | src/components/SeriesExplorer.test.tsx > SeriesExplorer > refuse une période incohérente sans appeler l'API
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+
+stderr | src/components/SeriesExplorer.test.tsx > SeriesExplorer > affiche une erreur et permet de réessayer si l'API échoue
+The width(0) and height(0) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+
+ ✓ src/components/SeriesExplorer.test.tsx > SeriesExplorer > refuse une période incohérente sans appeler l'API 162ms
+ ✓ src/components/SeriesExplorer.test.tsx > SeriesExplorer > affiche une erreur et permet de réessayer si l'API échoue 88ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  21:03:06
+   Duration  1.84s (tests 58%, environment 23%, import 10%, setup 6%, transform 3%)
+
+# oxlint
+
+> enso-explorer-frontend@1.0.0 lint
+> oxlint src
+
+# tsc (typage strict)
+OK, aucune erreur de type

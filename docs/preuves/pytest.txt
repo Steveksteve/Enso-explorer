@@ -1,0 +1,79 @@
+# pytest — 2026-11-21T21:03:01+01:00 — base SQLite en mémoire
+============================= test session starts ==============================
+platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0 -- /usr/local/bin/python
+cachedir: .pytest_cache
+rootdir: ./backend
+configfile: pyproject.toml
+testpaths: tests
+plugins: platformdirs-4.13.5, anyio-4.15.1
+collecting ... collected 27 items
+
+tests/test_api.py::test_observations_filtered_by_period PASSED           [  3%]
+tests/test_api.py::test_without_filter_returns_whole_series PASSED       [  7%]
+tests/test_api.py::test_invalid_period_format_returns_422[params0] PASSED [ 11%]
+tests/test_api.py::test_invalid_period_format_returns_422[params1] PASSED [ 14%]
+tests/test_api.py::test_invalid_period_format_returns_422[params2] PASSED [ 18%]
+tests/test_api.py::test_invalid_period_format_returns_422[params3] PASSED [ 22%]
+tests/test_api.py::test_start_after_end_returns_422 PASSED               [ 25%]
+tests/test_api.py::test_unknown_index_returns_404 PASSED                 [ 29%]
+tests/test_api.py::test_episodes_and_comparison PASSED                   [ 33%]
+tests/test_api.py::test_comparison_errors PASSED                         [ 37%]
+tests/test_api.py::test_openapi_is_published PASSED                      [ 40%]
+tests/test_api.py::test_start_only_returns_values_from_that_month PASSED [ 44%]
+tests/test_episodes_and_etl.py::test_five_consecutive_seasons_make_an_episode PASSED [ 48%]
+tests/test_episodes_and_etl.py::test_four_seasons_are_not_enough PASSED  [ 51%]
+tests/test_episodes_and_etl.py::test_episode_reaching_end_of_data_is_flagged_ongoing PASSED [ 55%]
+tests/test_episodes_and_etl.py::test_etl_is_idempotent_and_tracks_revisions PASSED [ 59%]
+tests/test_transform.py::test_real_noaa_file_is_parsed_completely PASSED [ 62%]
+tests/test_transform.py::test_duplicates_are_removed_and_last_value_kept PASSED [ 66%]
+tests/test_transform.py::test_invalid_rows_are_rejected_with_a_reason[  DJF 19X7  28.85   2.22\n-date invalide] PASSED [ 70%]
+tests/test_transform.py::test_invalid_rows_are_rejected_with_a_reason[  DJF 2200  28.85   2.22\n-date invalide] PASSED [ 74%]
+tests/test_transform.py::test_invalid_rows_are_rejected_with_a_reason[  XYZ 1998  28.85   2.22\n-saison inconnue] PASSED [ 77%]
+tests/test_transform.py::test_invalid_rows_are_rejected_with_a_reason[  DJF 1998  28.85  -99.90\n-anomalie manquante] PASSED [ 81%]
+tests/test_transform.py::test_invalid_rows_are_rejected_with_a_reason[  DJF 1998  28.85  15.00\n-anomalie manquante ou hors bornes] PASSED [ 85%]
+tests/test_transform.py::test_period_uses_central_month_of_the_season PASSED [ 88%]
+tests/test_transform.py::test_gap_in_series_is_reported PASSED           [ 92%]
+tests/test_transform.py::test_unexpected_header_is_refused PASSED        [ 96%]
+tests/test_transform.py::test_lowercase_season_is_accepted PASSED        [100%]
+
+============================== 27 passed in 0.47s ==============================
+
+# pytest — base PostgreSQL 16 (TEST_DATABASE_URL)
+============================= test session starts ==============================
+platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0 -- /usr/local/bin/python
+cachedir: .pytest_cache
+rootdir: ./backend
+configfile: pyproject.toml
+testpaths: tests
+plugins: platformdirs-4.13.5, anyio-4.15.1
+collecting ... collected 27 items
+
+tests/test_api.py::test_observations_filtered_by_period PASSED           [  3%]
+tests/test_api.py::test_without_filter_returns_whole_series PASSED       [  7%]
+tests/test_api.py::test_invalid_period_format_returns_422[params0] PASSED [ 11%]
+tests/test_api.py::test_invalid_period_format_returns_422[params1] PASSED [ 14%]
+tests/test_api.py::test_invalid_period_format_returns_422[params2] PASSED [ 18%]
+tests/test_api.py::test_invalid_period_format_returns_422[params3] PASSED [ 22%]
+tests/test_api.py::test_start_after_end_returns_422 PASSED               [ 25%]
+tests/test_api.py::test_unknown_index_returns_404 PASSED                 [ 29%]
+tests/test_api.py::test_episodes_and_comparison PASSED                   [ 33%]
+tests/test_api.py::test_comparison_errors PASSED                         [ 37%]
+tests/test_api.py::test_openapi_is_published PASSED                      [ 40%]
+tests/test_api.py::test_start_only_returns_values_from_that_month PASSED [ 44%]
+tests/test_episodes_and_etl.py::test_five_consecutive_seasons_make_an_episode PASSED [ 48%]
+tests/test_episodes_and_etl.py::test_four_seasons_are_not_enough PASSED  [ 51%]
+tests/test_episodes_and_etl.py::test_episode_reaching_end_of_data_is_flagged_ongoing PASSED [ 55%]
+tests/test_episodes_and_etl.py::test_etl_is_idempotent_and_tracks_revisions PASSED [ 59%]
+tests/test_transform.py::test_real_noaa_file_is_parsed_completely PASSED [ 62%]
+tests/test_transform.py::test_duplicates_are_removed_and_last_value_kept PASSED [ 66%]
+tests/test_transform.py::test_invalid_rows_are_rejected_with_a_reason[  DJF 19X7  28.85   2.22\n-date invalide] PASSED [ 70%]
+tests/test_transform.py::test_invalid_rows_are_rejected_with_a_reason[  DJF 2200  28.85   2.22\n-date invalide] PASSED [ 74%]
+tests/test_transform.py::test_invalid_rows_are_rejected_with_a_reason[  XYZ 1998  28.85   2.22\n-saison inconnue] PASSED [ 77%]
+tests/test_transform.py::test_invalid_rows_are_rejected_with_a_reason[  DJF 1998  28.85  -99.90\n-anomalie manquante] PASSED [ 81%]
+tests/test_transform.py::test_invalid_rows_are_rejected_with_a_reason[  DJF 1998  28.85  15.00\n-anomalie manquante ou hors bornes] PASSED [ 85%]
+tests/test_transform.py::test_period_uses_central_month_of_the_season PASSED [ 88%]
+tests/test_transform.py::test_gap_in_series_is_reported PASSED           [ 92%]
+tests/test_transform.py::test_unexpected_header_is_refused PASSED        [ 96%]
+tests/test_transform.py::test_lowercase_season_is_accepted PASSED        [100%]
+
+============================== 27 passed in 0.61s ==============================
