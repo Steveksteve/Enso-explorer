@@ -4,7 +4,7 @@ import { useAsync } from '../hooks/useAsync'
 import type { Period } from '../types'
 import { formatAnomaly, formatMonth, summarize } from '../utils/format'
 import { DataTable } from './DataTable'
-import { OniChart } from './OniChart'
+import { IndexChart } from './IndexChart'
 import { PeriodFilter } from './PeriodFilter'
 import { StatusMessage } from './StatusMessage'
 
@@ -19,7 +19,7 @@ export function SeriesExplorer() {
 
   return (
     <section aria-labelledby="explorer-title" className="card">
-      <h2 id="explorer-title">Explorer l'indice ONI</h2>
+      <h2 id="explorer-title">Explorer l'indice RONI</h2>
       <PeriodFilter value={period} onChange={setPeriod} />
       <StatusMessage status={query.status} error={query.error} onRetry={query.reload}
         loadingLabel="Chargement des observations…" />
@@ -40,7 +40,7 @@ export function SeriesExplorer() {
           </p>
           {data.items.length > 0 && (
             <>
-              <OniChart
+              <IndexChart
                 items={data.items}
                 unit={data.unit}
                 title={`Anomalie de température de surface – région Niño 3.4 (${data.unit})`}

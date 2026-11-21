@@ -2,7 +2,7 @@
 import type { Comparison, Episode, ObservationsResponse, Period } from '../types'
 
 const BASE_URL: string = import.meta.env.VITE_API_BASE_URL ?? ''
-const INDEX = 'ONI'
+const INDEX = 'RONI'
 
 export class ApiError extends Error {
   readonly status: number

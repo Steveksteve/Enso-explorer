@@ -1,6 +1,6 @@
 /**
  * TEST FRONTEND (minimal obligatoire n°3) : un changement de période actualise la courbe et les valeurs.
- * Le fetch est simulé, mais il répond avec les VRAIES valeurs du fichier NOAA du dépôt,
+ * Le fetch est simulé, mais il répond avec les VRAIES valeurs du fichier NOAA RONI du dépôt,
  * filtrées comme le fait l'API (mois central compris entre start et end).
  */
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
@@ -12,12 +12,12 @@ import type { Observation } from '../types'
 import { SeriesExplorer } from './SeriesExplorer'
 
 const SEASONS = ['DJF', 'JFM', 'FMA', 'MAM', 'AMJ', 'MJJ', 'JJA', 'JAS', 'ASO', 'SON', 'OND', 'NDJ']
-const ALL: Observation[] = readFileSync(resolve(__dirname, '../../../data/raw/oni.ascii.txt'), 'utf8')
+const ALL: Observation[] = readFileSync(resolve(__dirname, '../../../data/raw/RONI.ascii.txt'), 'utf8')
   .trim().split('\n').slice(1)
   .map((line) => {
-    const [season, year, total, anom] = line.trim().split(/\s+/)
+    const [season, year, anom] = line.trim().split(/\s+/)
     const month = String(SEASONS.indexOf(season) + 1).padStart(2, '0')
-    return { season, year: Number(year), period: `${year}-${month}`, anomaly: Number(anom), mean_sst: Number(total) }
+    return { season, year: Number(year), period: `${year}-${month}`, anomaly: Number(anom), mean_sst: null }
   })
 
 function fakeApi(url: string): Response {
@@ -26,10 +26,10 @@ function fakeApi(url: string): Response {
   const end = params.get('end') ?? '9999-99'
   const items = ALL.filter((o) => o.period >= start && o.period <= end)
   const body = {
-    index: 'ONI', unit: '°C', start, end, count: items.length, items, last_import: null,
-    source: { code: 'NOAA_CPC_ONI', name: 'Oceanic Niño Index (ONI)', provider: 'NOAA CPC',
-      url: 'https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt',
-      documentation_url: 'https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/', version: 'ERSST v6' },
+    index: 'RONI', unit: '°C', start, end, count: items.length, items, last_import: null,
+    source: { code: 'NOAA_CPC_RONI', name: 'Relative Oceanic Niño Index (RONI)', provider: 'NOAA CPC',
+      url: 'https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt',
+      documentation_url: 'https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/', version: 'ERSST v6' },
   }
   return new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' } })
 }
@@ -47,7 +47,7 @@ describe('SeriesExplorer', () => {
     render(<SeriesExplorer />)
     const summary = await screen.findByTestId('series-summary')
     await waitFor(() => expect(summary).toHaveTextContent('561 saisons'))
-    expect(screen.getByTestId('oni-chart')).toHaveAttribute('data-points', '561')
+    expect(screen.getByTestId('index-chart')).toHaveAttribute('data-points', '561')
 
     fireEvent.change(screen.getByLabelText('Début'), { target: { value: '1997-01' } })
     fireEvent.change(screen.getByLabelText('Fin'), { target: { value: '1998-12' } })
@@ -57,10 +57,10 @@ describe('SeriesExplorer', () => {
     await waitFor(() => expect(String(fetchMock.mock.lastCall?.[0])).toContain('start=1997-01&end=1998-12'))
     // 2) le résumé et la courbe reflètent la nouvelle période (vraies valeurs NOAA)
     await waitFor(() => expect(screen.getByTestId('series-summary')).toHaveTextContent('24 saisons'))
-    expect(screen.getByTestId('series-summary')).toHaveTextContent('maximum +2,37 °C (NDJ 1997)')
-    expect(screen.getByTestId('oni-chart')).toHaveAttribute('data-points', '24')
+    expect(screen.getByTestId('series-summary')).toHaveTextContent('maximum +2,28 °C (NDJ 1997)')
+    expect(screen.getByTestId('index-chart')).toHaveAttribute('data-points', '24')
     // 3) le tableau accessible contient bien 24 lignes de données
-    const table = screen.getByRole('region', { name: 'Tableau des valeurs ONI' })
+    const table = screen.getByRole('region', { name: 'Tableau des valeurs RONI' })
     expect(within(table).getAllByRole('row')).toHaveLength(25) // + ligne d'en-tête
   })
 
@@ -69,7 +69,7 @@ describe('SeriesExplorer', () => {
     await screen.findByTestId('series-summary')
     await userEvent.click(screen.getByRole('button', { name: '2014–2017' }))
     await waitFor(() => expect(screen.getByTestId('series-summary')).toHaveTextContent('48 saisons'))
-    expect(screen.getByTestId('series-summary')).toHaveTextContent('maximum +2,59 °C (NDJ 2015)')
+    expect(screen.getByTestId('series-summary')).toHaveTextContent('maximum +2,25 °C (NDJ 2015)')
     expect(screen.getByRole('button', { name: '2014–2017' })).toHaveAttribute('aria-pressed', 'true')
   })
 

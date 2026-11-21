@@ -6,7 +6,7 @@ import type { Comparison, Episode } from '../types'
 import { formatAnomaly, halfStepTicks } from '../utils/format'
 import { StatusMessage } from './StatusMessage'
 
-const DEFAULT_PAIR = { a: 'EN-1997-05', b: 'EN-2014-10' }
+const DEFAULT_PAIR = { a: 'EN-1997-05', b: 'EN-2015-03' }
 
 function EpisodeSelect({ id, label, value, episodes, onChange }: {
   id: string; label: string; value: string; episodes: Episode[]; onChange: (v: string) => void
@@ -49,7 +49,7 @@ function MetricsTable({ data }: { data: Comparison }) {
   return (
     <div className="table-scroll">
       <table className="metrics">
-        <caption>Indicateurs calculés sur l'ONI (seuil ±{data.threshold.toString().replace('.', ',')} {data.unit}, au moins {data.min_seasons} saisons)</caption>
+        <caption>Indicateurs calculés sur le {data.index} (seuil ±{data.threshold.toString().replace('.', ',')} {data.unit}, au moins {data.min_seasons} saisons)</caption>
         <thead>
           <tr><th scope="col">Indicateur</th><th scope="col">{a.label}</th><th scope="col">{b.label}</th></tr>
         </thead>
@@ -123,7 +123,7 @@ export function EpisodeComparison() {
     <section aria-labelledby="compare-title" className="card">
       <h2 id="compare-title">Comparer deux épisodes historiques</h2>
       <p className="muted">
-        Épisode = au moins 5 saisons glissantes consécutives avec ONI ≥ +0,5 °C (El Niño) ou ≤ −0,5 °C (La Niña).
+        Épisode = au moins 5 saisons glissantes consécutives avec RONI ≥ +0,5 °C (El Niño) ou ≤ −0,5 °C (La Niña).
       </p>
       <StatusMessage status={episodes.status} error={episodes.error} onRetry={episodes.reload}
         loadingLabel="Chargement des épisodes…" />

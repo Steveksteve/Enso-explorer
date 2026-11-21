@@ -9,7 +9,7 @@ export default function App() {
         <div className="container">
           <h1>ENSO Explorer</h1>
           <p className="tagline">
-            Explorer les épisodes El Niño et La Niña à partir de l'indice NOAA ONI (Oceanic Niño Index)
+            Explorer les épisodes El Niño et La Niña à partir de l'indice NOAA RONI (Relative Oceanic Niño Index)
           </p>
         </div>
       </header>
@@ -20,7 +20,7 @@ export default function App() {
       <footer className="site-footer">
         <div className="container">
           <p>
-            Données : NOAA Climate Prediction Center, indice ONI (ERSST v6). Application pédagogique —
+            Données : NOAA Climate Prediction Center, indice RONI (ERSST v6). Application pédagogique —
             aucune prévision climatique. Les valeurs les plus récentes peuvent être révisées par NOAA.
           </p>
         </div>

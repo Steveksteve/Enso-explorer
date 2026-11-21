@@ -29,13 +29,13 @@ function yearTicks(items: Observation[]): string[] {
 }
 
 /**
- * Courbe ONI. Accessibilité :
+ * Courbe de l'indice RONI. Accessibilité :
  *  - <figure> + titre et description reliés par aria-labelledby / aria-describedby ;
  *  - accessibilityLayer de Recharts : navigation au clavier (flèches) dans le graphique ;
  *  - zones El Niño / La Niña distinguées par la couleur ET par des libellés texte ;
  *  - tableau de données équivalent fourni à côté (composant DataTable).
  */
-export function OniChart({ items, unit, title, description }: Props) {
+export function IndexChart({ items, unit, title, description }: Props) {
   const values = items.map((o) => o.anomaly)
   const bound = Math.max(2.5, ...values.map((v) => Math.ceil(Math.abs(v) * 2) / 2))
   const yTicks = halfStepTicks(-bound, bound)
@@ -48,7 +48,7 @@ export function OniChart({ items, unit, title, description }: Props) {
           {description}
         </p>
       </figcaption>
-      <div className="chart-area" data-testid="oni-chart" data-points={items.length}>
+      <div className="chart-area" data-testid="index-chart" data-points={items.length}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={items} margin={{ top: 10, right: 16, bottom: 28, left: 8 }} accessibilityLayer>
             <ReferenceArea y1={0.5} y2={bound} fill={COLORS.warm} fillOpacity={0.07} ifOverflow="hidden" />
@@ -68,13 +68,13 @@ export function OniChart({ items, unit, title, description }: Props) {
               tickFormatter={(v: number) => v.toFixed(1).replace('.', ',')}
               tick={{ fill: '#3c4450', fontSize: 12 }}
               width={56}
-              label={{ value: `Anomalie ONI (${unit})`, angle: -90, position: 'insideLeft', offset: 4, fill: '#3c4450', fontSize: 12, style: { textAnchor: 'middle' } }}
+              label={{ value: `Anomalie RONI (${unit})`, angle: -90, position: 'insideLeft', offset: 4, fill: '#3c4450', fontSize: 12, style: { textAnchor: 'middle' } }}
             />
             <ReferenceLine y={0} stroke="#5b6573" />
             <ReferenceLine y={0.5} stroke={COLORS.warm} strokeDasharray="6 4" />
             <ReferenceLine y={-0.5} stroke={COLORS.cold} strokeDasharray="6 4" />
             <Tooltip
-              formatter={(value) => [formatAnomaly(Number(value), unit), 'Anomalie ONI']}
+              formatter={(value) => [formatAnomaly(Number(value), unit), 'Anomalie RONI']}
               labelFormatter={(label, payload) => {
                 const obs = payload?.[0]?.payload as Observation | undefined
                 return obs ? `${obs.season} ${obs.year} (centre : ${formatMonth(obs.period)})` : String(label)
@@ -83,7 +83,7 @@ export function OniChart({ items, unit, title, description }: Props) {
             <Line
               type="monotone"
               dataKey="anomaly"
-              name="Anomalie ONI"
+              name="Anomalie RONI"
               stroke={COLORS.line}
               strokeWidth={2}
               dot={items.length <= 48}
@@ -94,7 +94,7 @@ export function OniChart({ items, unit, title, description }: Props) {
         </ResponsiveContainer>
       </div>
       <ul className="legend" aria-label="Légende">
-        <li><span className="swatch swatch-line" aria-hidden="true" /> Anomalie ONI ({unit})</li>
+        <li><span className="swatch swatch-line" aria-hidden="true" /> Anomalie RONI ({unit})</li>
         <li><span className="swatch swatch-warm" aria-hidden="true" /> Zone El Niño (≥ +0,5 {unit}, seuil en tirets rouges)</li>
         <li><span className="swatch swatch-cold" aria-hidden="true" /> Zone La Niña (≤ −0,5 {unit}, seuil en tirets bleus)</li>
       </ul>
