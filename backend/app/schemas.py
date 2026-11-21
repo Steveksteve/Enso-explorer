@@ -53,8 +53,10 @@ class ObservationOut(BaseModel):
     season: str = Field(examples=["NDJ"])
     year: int = Field(examples=[1997])
     period: str = Field(description="Mois central de la saison, AAAA-MM", examples=["1997-12"])
-    anomaly: float = Field(description="Anomalie ONI en °C", examples=[2.37])
-    mean_sst: float | None = Field(description="SST moyenne Niño 3.4 en °C", examples=[28.96])
+    anomaly: float = Field(description="Anomalie RONI en °C", examples=[2.28])
+    mean_sst: float | None = Field(
+        description="SST moyenne Niño 3.4 en °C (absente pour le RONI)", examples=[None]
+    )
 
 
 class ObservationsResponse(BaseModel):

@@ -1,14 +1,14 @@
-"""Détection et comparaison d'épisodes El Niño / La Niña à partir de l'ONI.
+"""Détection et comparaison d'épisodes El Niño / La Niña à partir du RONI.
 
-Règle utilisée (NOAA CPC, table historique ONI) :
-  El Niño : ONI ≥ +0,5 °C pendant au moins 5 saisons glissantes consécutives
-  La Niña : ONI ≤ −0,5 °C pendant au moins 5 saisons glissantes consécutives
+Règle utilisée (NOAA CPC, table historique RONI) :
+  El Niño : RONI ≥ +0,5 °C pendant au moins 5 saisons glissantes consécutives
+  La Niña : RONI ≤ −0,5 °C pendant au moins 5 saisons glissantes consécutives
 
 Choix documenté : le seuil est appliqué aux valeurs à 2 décimales du fichier NOAA, alors que
 la table colorée de NOAA utilise des valeurs arrondies à 0,1 °C. Les bornes d'un épisode
 peuvent donc différer d'une saison avec la table NOAA (ex. une saison à +0,46 °C).
 
-Classe d'intensité (facultative, descriptive) : selon le pic |ONI| —
+Classe d'intensité (facultative, descriptive) : selon le pic |RONI| —
   faible [0,5 ; 1,0[, modéré [1,0 ; 1,5[, fort [1,5 ; 2,0[, très fort ≥ 2,0.
 C'est une convention de lecture répandue, PAS une classification officielle NOAA.
 Le terme « Super El Niño » n'est volontairement pas utilisé.
@@ -191,14 +191,17 @@ def interpret(a: Episode, b: Episode) -> tuple[list[str], list[str]]:
             )
 
     limits = [
-        "L'ONI ne mesure que la température de surface de la mer dans la région Niño 3.4 : "
-        "il ne décrit ni la réponse de l'atmosphère, ni les impacts régionaux "
-        "(pluies, sécheresses, températures).",
+        "Le RONI ne mesure que la température de surface de la mer dans la région Niño 3.4, "
+        "relativement au reste des tropiques : il ne décrit ni la réponse de l'atmosphère, "
+        "ni les impacts régionaux (pluies, sécheresses, températures).",
         "Classe d'intensité (faible, modéré, fort, très fort) = convention de lecture fondée sur "
-        "le pic de l'ONI, pas une classification officielle NOAA. Le terme « Super El Niño » "
+        "le pic du RONI, pas une classification officielle NOAA. Le terme « Super El Niño » "
         "n'est pas utilisé.",
-        "Les anomalies sont calculées par rapport à des périodes de référence de 30 ans mises à "
-        "jour tous les 5 ans : comparer des épisodes éloignés dans le temps reste approximatif.",
+        "Le RONI retire le réchauffement moyen des tropiques, ce qui rend la comparaison entre "
+        "décennies plus juste qu'avec l'ONI ; mais c'est une valeur relative et ajustée "
+        "(même variance que Niño 3.4), pas une température mesurée directement.",
+        "Les valeurs les plus récentes sont provisoires : NOAA peut les réviser jusqu'à deux mois "
+        "après leur publication.",
         "Chaque valeur est une moyenne sur 3 mois : les variations mensuelles sont lissées.",
         "Aucune prévision n'est produite par cette application.",
     ]

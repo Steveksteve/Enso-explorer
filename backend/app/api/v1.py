@@ -33,7 +33,7 @@ from app.services.episodes import (
 router = APIRouter(prefix="/api/v1")
 
 MONTH_PATTERN = r"^\d{4}-(0[1-9]|1[0-2])$"
-IndexCode = Annotated[str, Path(pattern=r"^[A-Za-z0-9]{2,10}$", examples=["ONI"])]
+IndexCode = Annotated[str, Path(pattern=r"^[A-Za-z0-9]{2,10}$", examples=["RONI"])]
 MonthParam = Annotated[
     str | None,
     Query(pattern=MONTH_PATTERN, description="Mois AAAA-MM (inclus)", examples=["1997-01"]),

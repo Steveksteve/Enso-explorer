@@ -17,7 +17,7 @@ app = FastAPI(
     title="ENSO Explorer API",
     version="1.0.0",
     description=(
-        "API en lecture seule exposant l'indice NOAA ONI (Oceanic Niño Index, ERSST v6) "
+        "API en lecture seule exposant l'indice NOAA RONI (Relative Oceanic Niño Index, ERSST v6) "
         "pour explorer les épisodes El Niño / La Niña. Source : NOAA CPC."
     ),
     docs_url="/api/docs",
