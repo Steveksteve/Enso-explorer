@@ -1,0 +1,98 @@
+# ENSO Explorer — pile complète : Caddy (frontend + reverse proxy), API FastAPI, PostgreSQL, worker ETL.
+# Lancement :   cp .env.example .env   (puis changer les mots de passe)
+#               docker compose up -d --build
+#               docker compose run --rm etl        # import des données NOAA
+#
+# Réseaux : "edge" relie Caddy à l'API ; "internal" (sans accès Internet) relie API/ETL à PostgreSQL.
+# Seul Caddy publie des ports sur l'hôte (80/443).
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "3" }   # rotation des journaux
+
+services:
+  db:
+    image: postgres:16-alpine
+    logging: *logging
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend
+      additional_contexts:
+        data: ./data
+    image: enso-explorer/api:latest
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      CORS_ORIGINS: https://${DOMAIN}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [internal, edge]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  etl:
+    # Worker ponctuel : lancé à la demande ou par une tâche planifiée (cron/systemd timer)
+    image: enso-explorer/api:latest
+    command: ["python", "-m", "etl.load", "--file", "/data/raw/oni.ascii.txt",
+              "--extracted-at", "2026-11-16", "--last-modified", "Tue, 03 Nov 2026 19:31:48 GMT"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy  # l'API a appliqué les migrations Alembic
+    networks: [internal, egress]
+    profiles: ["etl"]
+
+  caddy:
+    build: ./frontend
+    image: enso-explorer/web:latest
+    logging: *logging
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [edge]
+
+networks:
+  internal:
+    internal: true   # pas de sortie Internet : la base n'est joignable que par l'API et l'ETL
+  edge: {}
+  egress: {}         # sortie Internet du worker ETL (option --download vers NOAA)
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

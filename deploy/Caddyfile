@@ -1,0 +1,37 @@
+{
+	# Adresse de contact pour les certificats Let's Encrypt
+	email {$ACME_EMAIL}
+}
+
+# DOMAIN=localhost en local (certificat interne), DOMAIN=enso.example.org en production
+# (certificat HTTPS automatique Let's Encrypt, redirection HTTP -> HTTPS automatique).
+{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# API : seul point d'entrée vers FastAPI (le conteneur api n'expose aucun port sur l'hôte)
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+
+	# Frontend React : fichiers statiques + repli sur index.html
+	# CSP stricte limitée au frontend : /api/docs (Swagger UI) charge ses scripts depuis un CDN.
+	handle {
+		header Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; connect-src 'self'; frame-ancestors 'none'"
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}
