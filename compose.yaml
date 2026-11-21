@@ -53,8 +53,8 @@ services:
   etl:
     # Worker ponctuel : lancé à la demande ou par une tâche planifiée (cron/systemd timer)
     image: enso-explorer/api:latest
-    command: ["python", "-m", "etl.load", "--file", "/data/raw/oni.ascii.txt",
-              "--extracted-at", "2026-11-16", "--last-modified", "Tue, 03 Nov 2026 19:31:48 GMT"]
+    command: ["python", "-m", "etl.load", "--file", "/data/raw/RONI.ascii.txt",
+              "--extracted-at", "2026-11-21", "--last-modified", "Tue, 03 Nov 2026 19:31:48 GMT"]
     environment:
       DATABASE_URL: ${DATABASE_URL}
     depends_on:
