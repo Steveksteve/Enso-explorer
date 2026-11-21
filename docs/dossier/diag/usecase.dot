@@ -1,0 +1,21 @@
+digraph UC {
+  rankdir=LR; fontname="Helvetica"; node [fontname="Helvetica", fontsize=12]; edge [fontname="Helvetica", fontsize=9, color="#555555"];
+  visiteur [shape=box, style="rounded,filled", fillcolor="#fff7e6", color="#b07a00", label="«acteur»
+Visiteur
+(étudiant, enseignant)"];
+  exploitant [shape=box, style="rounded,filled", fillcolor="#fff7e6", color="#b07a00", label="«acteur»
+Exploitant
+(CLI, pas d'IHM admin)"];
+  noaa [shape=box, style="rounded,dashed", label="NOAA CPC\n(système externe)", fontsize=10];
+  subgraph cluster_sys { label="Système ENSO Explorer"; style="rounded"; color="#1b4f8a"; fontcolor="#1b4f8a"; fontsize=12;
+    node [shape=ellipse, style=filled, fillcolor="#eef3f9", color="#1b4f8a"];
+    uc1 [label="UC1 Consulter la courbe RONI"]; uc2 [label="UC2 Filtrer par période"];
+    uc3 [label="UC3 Lire les valeurs\n(tableau accessible)"]; uc4 [label="UC4 Comparer deux épisodes"];
+    uc5 [label="UC5 Lire l'interprétation\net les limites"]; uc6 [label="UC6 Consulter la source\net la provenance"];
+    uc7 [label="UC7 Importer / mettre à jour\nla série RONI (ETL)"]; uc8 [label="UC8 Sauvegarder /\nrestaurer la base"];
+  }
+  visiteur -> uc1; visiteur -> uc2; visiteur -> uc4; visiteur -> uc6;
+  uc2 -> uc1 [style=dashed, label="«extend»"]; uc3 -> uc1 [style=dashed, label="«extend»"];
+  uc4 -> uc5 [style=dashed, label="«include»"];
+  exploitant -> uc7; exploitant -> uc8; uc7 -> noaa [style=dashed, label="télécharge"];
+}

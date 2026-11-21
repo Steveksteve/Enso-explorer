@@ -1,0 +1,36 @@
+sequenceDiagram
+  autonumber
+  actor V as Visiteur
+  participant R as React<br/>SeriesExplorer
+  participant C as Caddy
+  participant A as FastAPI<br/>/api/v1
+  participant P as PostgreSQL
+  V->>R: période 1997-01 → 1998-12<br/>+ « Appliquer »
+  R->>R: validation client<br/>(AAAA-MM, début ≤ fin)
+  alt période incohérente
+    R-->>V: message (role=alert),<br/>aucune requête
+  else période valide
+    R->>R: annule la requête<br/>précédente (AbortController)
+    R->>C: GET …/RONI/observations<br/>?start=1997-01&end=1998-12
+    C->>A: reverse_proxy<br/>api:8000
+    A->>A: validation Pydantic<br/>(regex, début ≤ fin)
+    alt paramètre invalide
+      A-->>R: 422 {detail}
+      R-->>V: bandeau d'erreur
+    else indice inconnu
+      A-->>R: 404 {detail}
+    else entrée valide
+      A->>P: SELECT … WHERE index_id=$1<br/>AND period BETWEEN $2 AND $3
+      alt base indisponible
+        P--xA: OperationalError
+        A-->>R: 503 « Base indisponible »
+        R-->>V: erreur + « Réessayer »
+      else
+        P-->>A: 24 lignes (index unique<br/>index_id, period)
+        A->>P: dernier import réussi
+        A-->>C: 200 JSON {unit, source,<br/>last_import, items[24]}
+        C-->>R: 200 (gzip)
+        R-->>V: courbe + résumé<br/>(aria-live) + tableau
+      end
+    end
+  end

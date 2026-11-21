@@ -1,0 +1,28 @@
+digraph D {
+  rankdir=TB; nodesep=0.3; ranksep=0.35; compound=true; fontname="Helvetica"; node [fontname="Helvetica", fontsize=12, shape=box, style="rounded,filled", fillcolor="white"]; edge [fontname="Helvetica", fontsize=9, color="#444444"];
+  user [label="Utilisateur\n(navigateur)", fillcolor="#eef3f9"];
+  le [label="Let's Encrypt\n(ACME)", style="rounded,dashed"];
+  ext [label="NOAA CPC", style="rounded,dashed"];
+  offsite [label="Stockage externe\n(copie des sauvegardes)", style="rounded,dashed"];
+  subgraph cluster_vps { label="VPS Linux (ex. Hetzner CX22 : 2 vCPU, 4 Go RAM, 40 Go SSD) — pare-feu : 22 (clé SSH), 80, 443"; style="rounded"; color="#333333"; fontsize=10;
+    subgraph cluster_compose { label="Docker Compose"; style="rounded,dashed"; color="#1b4f8a";
+      subgraph cluster_edge { label="réseau edge"; color="#2e7d32"; style="rounded";
+        caddy [label="caddy\nports 80/443 publiés", fillcolor="#e8f5e9"];
+      }
+      subgraph cluster_int { label="réseau internal (internal: true, sans Internet)"; color="#b07a00"; style="rounded";
+        api [label="api — uvicorn :8000\nréseaux internal + edge\n(aucun port publié)", fillcolor="#eef3f9"];
+        etl [label="etl (profil etl)\nréseaux internal + egress\nponctuel / cron", fillcolor="#f3e5f5"];
+        db [label="db\npostgres:16\n:5432 non publié", shape=cylinder, fillcolor="#fff7e6"];
+      }
+    }
+    v1 [label="volume pgdata", shape=folder, fillcolor="#fafafa"];
+    v2 [label="volumes caddy_data\n(certificats)", shape=folder, fillcolor="#fafafa"];
+    bk [label="backups/\n(pg_dump quotidien,\n14 jours)", shape=folder, fillcolor="#fafafa"];
+  }
+  user -> caddy [label="HTTPS 443"];
+  caddy -> le [label="certificat", style=dashed];
+  caddy -> api [label="/api/*"];
+  api -> db; etl -> db; etl -> ext [label="réseau egress", style=dashed];
+  db -> v1 [style=dotted, arrowhead=none]; caddy -> v2 [style=dotted, arrowhead=none];
+  db -> bk [label="backup.sh", style=dashed]; bk -> offsite [label="rsync/rclone", style=dashed];
+}

@@ -1,0 +1,16 @@
+digraph A {
+  rankdir=TB; nodesep=0.8; ranksep=0.35; fontname="Helvetica"; node [fontname="Helvetica", fontsize=12, shape=box, style="rounded,filled"]; edge [fontname="Helvetica", fontsize=10, color="#444444"];
+  browser [label="Navigateur\nReact 19 + TypeScript\n(Vite, Recharts)", fillcolor="#eef3f9", color="#1b4f8a"];
+  caddy [label="Caddy 2\nHTTPS, en-têtes sécurité,\nfichiers statiques, reverse proxy", fillcolor="#e8f5e9", color="#2e7d32"];
+  api [label="API FastAPI /api/v1\nPydantic · SQLAlchemy 2\nservices/episodes.py\n(lecture seule)", fillcolor="#eef3f9", color="#1b4f8a"];
+  db [label="PostgreSQL 16\nsource · climate_index\nimport_batch · observation\n(migrations Alembic)", shape=cylinder, fillcolor="#fff7e6", color="#b07a00"];
+  etl [label="Worker ETL (Python)\npandas + NumPy\ntransform.py → load.py", fillcolor="#f3e5f5", color="#6a1b9a"];
+  noaa [label="NOAA CPC\nRONI.ascii.txt", style="rounded,dashed", fillcolor="white"];
+  browser -> caddy [label="HTTPS GET /\nGET /api/v1/…"];
+  caddy -> api [label="HTTP interne\napi:8000"];
+  api -> db [label="SELECT paramétrés\n(psycopg 3)"];
+  etl -> db [label="1 transaction :\nupsert + import_batch"];
+  noaa -> etl [label="fichier ASCII\n(--file ou --download)"];
+  {rank=same; caddy; noaa}
+  {rank=same; api; etl}
+}
